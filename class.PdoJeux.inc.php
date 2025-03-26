@@ -91,6 +91,21 @@ class PdoJeux {
 		}
     }
 
+    public function getLesMarques(): array {
+        $requete =  'SELECT idMarque as identifiant, nomMarque as libelle 
+                      FROM marque 
+                      ORDER BY nomMarque';
+      try	{	 
+          $resultat = PdoJeux::$monPdo->query($requete);
+          $tbMarques  = $resultat->fetchAll();	
+          return $tbMarques;		
+      }
+      catch (PDOException $e)	{  
+          die('<div class = "erreur">Erreur dans la requête !<p>'
+              .$e->getmessage().'</p></div>');
+      }
+    }
+
 	
 	/**
 	 * Ajoute un nouveau genre avec le libellé donné en paramètre
@@ -104,6 +119,21 @@ class PdoJeux {
                     . "(idGenre, libGenre) "
                     . "VALUES (0, :unLibGenre) ");
             $requete_prepare->bindParam(':unLibGenre', $libGenre, PDO::PARAM_STR);
+            $requete_prepare->execute();
+			// récupérer l'identifiant crée
+			return PdoJeux::$monPdo->lastInsertId(); 
+        } catch (Exception $e) {
+            die('<div class = "erreur">Erreur dans la requête !<p>'
+				.$e->getmessage().'</p></div>');
+        }
+    }
+
+    public function ajouterMarque(string $nomMarque): int {
+        try {
+            $requete_prepare = PdoJeux::$monPdo->prepare("INSERT INTO marque "
+                    . "(idMarque, nomMarque) "
+                    . "VALUES (0, :unNomMarque) ");
+            $requete_prepare->bindParam(':unNomMarque', $nomMarque, PDO::PARAM_STR);
             $requete_prepare->execute();
 			// récupérer l'identifiant crée
 			return PdoJeux::$monPdo->lastInsertId(); 
@@ -134,6 +164,19 @@ class PdoJeux {
         }
     }
 	
+    public function modifierMarque(int $idMarque, string $nomMarque): void {
+        try {
+            $requete_prepare = PdoJeux::$monPdo->prepare("UPDATE marque "
+                    . "SET nomMarque = :unNomMarque "
+                    . "WHERE marque.idMarque = :unIdMarque");
+            $requete_prepare->bindParam(':unIdMarque', $idMarque, PDO::PARAM_INT);
+            $requete_prepare->bindParam(':unNomMarque', $nomMarque, PDO::PARAM_STR);
+            $requete_prepare->execute();
+        } catch (Exception $e) {
+            die('<div class = "erreur">Erreur dans la requête !<p>'
+				.$e->getmessage().'</p></div>');
+        }
+    }
 	
 	/**
      * Supprime le genre donné en paramètre
@@ -152,92 +195,18 @@ class PdoJeux {
         }
     }
 	
-	//==============================================================================
-	//
-	//	METHODES POUR LA GESTION DES PLATEFORMES
-	//
-	//==============================================================================
-
-
-     /**
-     * Retourne tous les plateformes sous forme d'un tableau d'objets 
-     * 
-     * @return array le tableau d'objets  (plateforme)
-     */
-    public function getLesPlatformes(): array {
-        $requete =  'SELECT idPlateforme as identifiant, libPlateforme as libelle 
-                      FROM plateforme
-                      ORDER BY libPlateforme';
-      try	{	 
-          $resultat = PdoJeux::$monPdo->query($requete);
-          $tbPlateformes  = $resultat->fetchAll();	
-          return $tbPlateformes;		
-      }
-      catch (PDOException $e)	{  
-          die('<div class = "erreur">Erreur dans la requête !<p>'
-              .$e->getmessage().'</p></div>');
-      }
-  }
-
-  /**
-	 * Ajoute un nouveau genre avec le libellé donné en paramètre
-	 * 
-	 * @param string $libGenre : le libelle du genre à ajouter
-	 * @return int l'identifiant du genre crée
-	 */
-    public function ajouterPlateforme(string $libPlateforme): int {
+    public function supprimerMarque(int $idMarque): void {
         try {
-            $requete_prepare = PdoJeux::$monPdo->prepare("INSERT INTO plateforme "
-                    . "(idPlateforme , libPlateforme ) "
-                    . "VALUES (0, :unLibPlateforme) ");
-            $requete_prepare->bindParam(':unLibPlateforme', $libPlateforme, PDO::PARAM_STR);
-            $requete_prepare->execute();
-			// récupérer l'identifiant crée
-			return PdoJeux::$monPdo->lastInsertId(); 
-        } catch (Exception $e) {
-            die('<div class = "erreur">Erreur dans la requête !<p>'
-				.$e->getmessage().'</p></div>');
-        }
-    }
-
-
-
-     /**
-     * Modifie le libellé de la plateforme donné en paramètre
-     * 
-     * @param int $idPlateforme: l'identifiant de la plateforme à modifier  
-     * @param string $libPlateforme : le libellé modifié
-     */
-    public function modifierPlateforme(int $idPlateforme, string $libPlateforme): void {
-        try {
-            $requete_prepare = PdoJeux::$monPdo->prepare("UPDATE plateforme "
-                    . "SET libPlateforme = :unLibPlateforme "
-                    . "WHERE plateforme.idPlateforme = :unIdPlateforme");
-            $requete_prepare->bindParam(':unIdPlateforme', $idPlateforme, PDO::PARAM_INT);
-            $requete_prepare->bindParam(':unLibPlateforme', $libPlateforme, PDO::PARAM_STR);
-            $requete_prepare->execute();
-        } catch (Exception $e) {
-            die('<div class = "erreur">Erreur dans la requête !<p>'
-				.$e->getmessage().'</p></div>');
-        }
-    }
-
-    /**
-    * Supprime la plateforme donné en paramètre
-    * 
-    * @param int $idPlateforme :l'identifiant de la plateforme à supprimer 
-    */
-    public function supprimerPlateforme(int $idPlateforme): void {
-        try {
-             $requete_prepare = PdoJeux::$monPdo->prepare("DELETE FROM plateforme "
-                     . "WHERE plateforme.idPlateforme = :unIdPlateforme");
-             $requete_prepare->bindParam(':unIdPlateforme', $idPlateforme, PDO::PARAM_INT);
+             $requete_prepare = PdoJeux::$monPdo->prepare("DELETE FROM marque "
+                     . "WHERE marque.idMarque = :unIdMarque");
+             $requete_prepare->bindParam(':unIdMarque', $idMarque, PDO::PARAM_INT);
              $requete_prepare->execute();
          } catch (Exception $e) {
              die('<div class = "erreur">Erreur dans la requête !<p>'
                  .$e->getmessage().'</p></div>');
          }
      }
+
 
 }
 ?>
