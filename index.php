@@ -35,27 +35,13 @@ switch($uc){
         require("controleur/c_gererGenres.php");  
         break; 
     } 
-} 
-
-// selon la valeur du use case demandé(uc) on inclut le contrôleur secondaire 
-switch($uc){ 
-    case 'index' : { 
-        $menuActif = '';
-        require("vue/v_menu.php");
-        require("vue/v_accueil.html"); 
-        break;
-    }
-    case 'gererPlateformes' : { 
+    case 'gererMarques' : { 
         $menuActif = 'Jeux'; // pour garder le menu correspondant ouvert 
         require("vue/v_menu.php"); 
-        require("controleur/c_gererPlateformes.php");  
+        require("controleur/c_gererMarques.php");  
         break; 
     } 
-} 
-
-
-
-
+}
 // Fermeture de la connexion (C) 
 $db = null;
 
